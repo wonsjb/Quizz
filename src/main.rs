@@ -1,7 +1,7 @@
 
 use std::{thread, time};
 use console::{Key, Term};
-use std::io;
+use std::{io, env};
 
 use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
@@ -19,7 +19,7 @@ fn spawn_stdin_channel() -> Receiver<Key> {
         let term = Term::stdout();
         loop {
             match term.read_key() {
-                Ok(key) => tx.send(key).expect("Could not set key"),
+                Ok(key) => tx.send(key).expect("Could not send key"),
                 Err(_) => ()
             }
         }
@@ -28,12 +28,13 @@ fn spawn_stdin_channel() -> Receiver<Key> {
 }
 
 fn main() -> io::Result<()> {
+    let args: Vec<String> = env::args().collect();
     let terminal = Term::stdout();
     terminal.clear_screen()?;
     terminal.hide_cursor()?;
     
     let sleep_time = time::Duration::from_millis(150);
-    let quizz = Quizz::parse("quizz/geek_quizz.yaml");
+    let quizz = Quizz::parse(&args[1]);
     let keys = spawn_stdin_channel();
 
     let mut words = MovingWords::new(quizz.get_texts());
