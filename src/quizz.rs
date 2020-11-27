@@ -17,6 +17,24 @@ pub struct Quizz {
     pub end_message: String,
 }
 
+fn split_text(text: String, len: usize) -> String {
+    let words = text.split_ascii_whitespace();
+    let mut new_words = vec!();
+    let mut current : usize = 0;
+    for word in words {
+        current += word.len();
+        if current > len {
+            new_words.push(String::from("\n"));
+            current = word.len();
+        } else {
+            new_words.push(String::from(" "));
+            current += 1
+        }
+        new_words.push(String::from(word))
+    }
+    new_words.concat()
+}
+
 fn parse_yaml(file: &str) -> Quizz {
     let source = fs::read_to_string(file).expect("Could not read quizz file");
     let docs = YamlLoader::load_from_str(&source).expect("Could not load quizz document");
@@ -26,6 +44,8 @@ fn parse_yaml(file: &str) -> Quizz {
     for question_yaml in doc["questions"].as_vec().expect("questions field is not a list") {
         let question = String::from(question_yaml["Q"].as_str().expect("Could not read question"));
         let answer = String::from(question_yaml["A"].as_str().expect("Could not read answer"));
+        let question = split_text(question, 25);
+        let answer = split_text(answer, 25);
         questions.push(Question{question, answer, hint: String::from("")})
     }
     let end_message = String::from(doc["end_message"].as_str().expect("Could not read end of message"));

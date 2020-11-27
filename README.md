@@ -1,2 +1,2 @@
 # Quizz
-Quizz diplayer, using ascii art
+Quizz displayer, using ascii art
